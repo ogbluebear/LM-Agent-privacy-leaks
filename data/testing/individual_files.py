@@ -1,22 +1,7 @@
 import json
+import os
 
-def filter_data(input_file, output_file, selected_names):
-    # Open and load the input JSON file
-    with open(input_file, 'r') as f:
-        data = json.load(f)
-    
-    # Filter the data by the selected entries
-    filtered_data = [entry for entry in data if entry['name'] in selected_names]
-    
-    # Save the filtered data to the output file
-    with open(output_file, 'w') as f:
-        json.dump(filtered_data, f, indent=4)
-
-# Specify your file paths
-input_file = 'main_data.json'
-output_file = 'original_filtered_output.json'
-
-# Specify the list of selected entries
+# Define the names of the scenarios to extract
 selected_names = [
     'main91', 'main92', 'main95', 'main97', 'main98', 'main105', 'main113', 'main115', 'main119', 'main121',
     'main127', 'main141', 'main143', 'main154', 'main162', 'main168', 'main173', 'main176', 'main187', 'main191',
@@ -28,7 +13,22 @@ selected_names = [
     'main480', 'main484', 'main492'
 ]
 
-# Run the function
-filter_data(input_file, output_file, selected_names)
+# Load the main JSON file
+with open('../main_data.json', 'r') as file:
+    data = json.load(file)
 
-print(f'Filtered data saved to {output_file}')
+# Create individual files for each selected scenario
+for scenario in data:
+    scenario_name = scenario.get("name")
+    if scenario_name in selected_names:
+        # Define the filename based on the scenario name
+        filename = f"{scenario_name}.json"
+        
+        # Write the individual scenario data to a new file
+        with open(filename, 'w') as outfile:
+            # Write scenario data as a single-element list for consistency with the structure
+            json.dump([scenario], outfile, indent=4)
+        
+        print(f"Created file: {filename}")
+
+print("Extraction completed.")
