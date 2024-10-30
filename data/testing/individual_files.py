@@ -1,7 +1,11 @@
 import json
 import os
 
-# Define the names of the scenarios to extract
+# Load the main data file
+with open("../main_data.json", "r") as main_file:
+    main_data = json.load(main_file)
+
+# List of names to extract
 selected_names = [
     'main91', 'main92', 'main95', 'main97', 'main98', 'main105', 'main113', 'main115', 'main119', 'main121',
     'main127', 'main141', 'main143', 'main154', 'main162', 'main168', 'main173', 'main176', 'main187', 'main191',
@@ -13,22 +17,25 @@ selected_names = [
     'main480', 'main484', 'main492'
 ]
 
-# Load the main JSON file
-with open('../main_data.json', 'r') as file:
-    data = json.load(file)
+# Directory to save individual files
+output_directory = "./"
 
-# Create individual files for each selected scenario
-for scenario in data:
-    scenario_name = scenario.get("name")
-    if scenario_name in selected_names:
-        # Define the filename based on the scenario name
-        filename = f"{scenario_name}.json"
-        
-        # Write the individual scenario data to a new file
-        with open(filename, 'w') as outfile:
-            # Write scenario data as a single-element list for consistency with the structure
-            json.dump([scenario], outfile, indent=4)
-        
-        print(f"Created file: {filename}")
+# Ensure output directory exists
+os.makedirs(output_directory, exist_ok=True)
 
-print("Extraction completed.")
+# Extract and save each selected entry as a standalone JSON file
+for entry in main_data:
+    entry_name = entry.get("name")
+    
+    # Check if the entry's name is in the selected names list
+    if entry_name in selected_names:
+        # Define the file name for the individual JSON file
+        output_file_path = os.path.join(output_directory, f"{entry_name}.json")
+        
+        # Write the entry as a standalone JSON file
+        with open(output_file_path, "w") as output_file:
+            json.dump(entry, output_file, indent=4)
+        
+        print(f"Extracted: {output_file_path}")
+
+print("Data extraction complete.")
