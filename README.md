@@ -1,7 +1,7 @@
 Modified instructions for automated framework (within data/testing folder):
-1. python individual_files.py
+**1. python individual_files.py**
 - Generates 1 json file for every single entry.
-2. python iterative_modification.py -file [filename.json]
+**2. python iterative_modification.py -file [filename.json]**
 - generates initial 10 modifications of file within "folder evaluation_[filename]"
 
 # PrivacyLens: Evaluating Privacy Norm Awareness of Language Models in Action
