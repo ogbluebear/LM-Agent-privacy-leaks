@@ -1,0 +1,4 @@
+1. python individual_files.py
+- Generates 1 json file for every single entry.
+2. python iterative_modification.py -file [filename.json]
+- generates initial 10 modifications of file within "folder evaluation_[filename]"
