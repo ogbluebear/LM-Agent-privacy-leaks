@@ -1,10 +1,19 @@
 Modified instructions for automated framework (within data/testing folder):
 
-**1. python individual_files.py**
-- Generates 1 json file for every single entry.
+****Automated version:****
+**1. python individual_files.py (data/testing)**
+- Generates 1 json file for every single entry I picked out to be worthy.
+
+**2. python optimize_all.py (/evaluation)**
+- Automatically runs _iterative_modification.py_ (generates initial 10 modifications of file within "folder evaluation_[filename]")
+- runs _optimize_single.py_ for each of the 10 initial modifications, ascertaining results of which ones are leaked or which ones aren't able to be leaked after 100 tries.
   
-**2. python iterative_modification.py -file [filename.json]**
+**File functions for individual testing:**
+**1. python iterative_modification.py -file [filename.json] (data/testing)**
 - generates initial 10 modifications of file within "folder evaluation_[filename]"
+
+**2. python optimize_single -file [filename_test#.json] (/evaluation)**
+- Run through optimization process of modifying until Leak or meeting 100 for 1/10 of the modifications generated in _iterative_modification.py_
 
 # PrivacyLens: Evaluating Privacy Norm Awareness of Language Models in Action
 
