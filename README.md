@@ -2,12 +2,20 @@ Modified instructions for automated framework (within data/testing folder):
 ---------
 **HOW TO RUN AUTOMATED EXPERIMENTS:**
 
-**1. python individual_files.py (data/testing)**
+**1. Go to main project folder (Privacy python individual_files.py (data/testing)**
+
+**2. Install the required packages from original PrivacyLens project (In Step #2 of "Setup" of the original README.md)**
+
+**3. Set up .env file in main project folder (PrivacyLens). The instruction for this is also apart of the original PrivacyLens README**
+
+**4. Go to /data/testing/ and run "python iterative_modification.py"**
 - Generates 1 json file for every single entry I picked out to be worthy.
 
-**2. python optimize_all.py (/evaluation)**
-- Automatically runs _iterative_modification.py_ (generates initial 10 modifications of file within "folder evaluation_[filename]")
-- runs _optimize_single.py_ for each of the 10 initial modifications, ascertaining results of which ones are leaked or which ones aren't able to be leaked after 100 tries.
+**2. Go to /evaluation/ and run "python optimize_all.py -file [file directory & name]"**
+- _For example, run "python optimize_all.py -file C:\Users\willi\OneDrive\Documents\PrivacyLens\data\testing\main91.json"_ (I am on Windows so my directory will look diff than mac, but same concept)
+- In the background, the program automatically runs:
+   1.  _iterative_modification.py_ (generates initial 10 modifications of file within "folder evaluation_[filename]")
+   2. _optimize_single.py_ for each of the 10 initial modifications, ascertaining results of which ones are leaked or which ones aren't able to be leaked after 100 tries.
 
 ---------
 
