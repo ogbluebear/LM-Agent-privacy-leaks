@@ -1,14 +1,17 @@
 Modified instructions for automated framework (within data/testing folder):
 
-****Automated version:****
+**HOW TO RUN AUTOMATED EXPERIMENTS: **
 **1. python individual_files.py (data/testing)**
 - Generates 1 json file for every single entry I picked out to be worthy.
 
 **2. python optimize_all.py (/evaluation)**
 - Automatically runs _iterative_modification.py_ (generates initial 10 modifications of file within "folder evaluation_[filename]")
 - runs _optimize_single.py_ for each of the 10 initial modifications, ascertaining results of which ones are leaked or which ones aren't able to be leaked after 100 tries.
-  
+
+---------
+
 **File functions for individual testing:**
+
 **1. python iterative_modification.py -file [filename.json] (data/testing)**
 - generates initial 10 modifications of file within "folder evaluation_[filename]"
 
