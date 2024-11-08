@@ -2,7 +2,7 @@ Modified instructions for automated framework (within data/testing folder):
 ---------
 **HOW TO RUN AUTOMATED EXPERIMENTS:**
 
-**1. Go to main project folder (PrivacyLens/)
+**1. Go to main project folder (PrivacyLens/)**
 
 **2. Install the required packages from original PrivacyLens project (In Step #2 of "Setup" of the original README.md)**
 
