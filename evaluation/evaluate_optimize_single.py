@@ -7,7 +7,7 @@ import argparse
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
-load_dotenv("../../.env")
+load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Set up argument parsing
@@ -73,15 +73,29 @@ def run_evaluation_commands():
     remove_square_brackets_from_file(input_file_path)
 
 # Check for leak status in EvalOutput JSON
+import time  # Ensure this is imported at the top of your script
+
+# Check for leak status in EvalOutput JSON
 def check_for_leak():
     with open(eval_output_path, 'r') as eval_file:
         eval_data = json.load(eval_file)
-        if '"leak_info": true' in json.dumps(eval_data):
-            leaked_file_path = os.path.join(output_dir, f"Leaked_{filename}.json")
-            os.rename(eval_output_path, leaked_file_path)
-            print(f"Leak detected. File renamed to: {leaked_file_path}")
-            return True
+
+    # Check for the "leak_info": true string in the file content
+    if '"leak_info": true' in json.dumps(eval_data):
+        # Prepare the new filename for the input file
+        leaked_file_path = os.path.join(base_dir, f"Leaked_{os.path.basename(input_file_path)}")
+        
+        print(f"Leak detected. Preparing to rename original input file to: {leaked_file_path}")
+        
+        # Introduce a small delay to ensure no file locks
+        time.sleep(0.5)
+        
+        # Rename the original input file to the leaked filename
+        os.rename(input_file_path, leaked_file_path)
+        print(f"Original input file renamed successfully to: {leaked_file_path}")
+        return True
     return False
+
 
 # Run initial evaluation commands
 run_evaluation_commands()
