@@ -6,7 +6,7 @@ import re
 import argparse
 
 # Load environment variables from .env file
-load_dotenv("../../.env")
+load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Set up command-line argument parsing
@@ -15,13 +15,17 @@ parser.add_argument('-file', required=True, help="Filename to run the iterative 
 args = parser.parse_args()
 filename = args.file  # Retrieve filename from the argument
 
-# Define paths
-base_dir = "C:\\Users\\willi\\OneDrive\\Documents\\PrivacyLens\\data\\testing"
-main_file_path = os.path.join(base_dir, filename)
+# Resolve the full path of the input file
+main_file_path = os.path.abspath(filename)
 
-# Create a unique output directory based on the input filename (without .json)
-output_dir = os.path.join(base_dir, f"evaluation_{os.path.splitext(filename)[0]}")
+# Extract the base directory and filename without extension for dynamic paths
+base_dir = os.path.dirname(main_file_path)
+file_basename = os.path.splitext(os.path.basename(main_file_path))[0]
+
+# Create a unique output directory based on the file's base name
+output_dir = os.path.join(base_dir, f"evaluation_{file_basename}")
 os.makedirs(output_dir, exist_ok=True)
+
 
 # Set parameters
 model = "gpt-4o-mini"
