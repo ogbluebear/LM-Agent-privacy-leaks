@@ -16,7 +16,7 @@
             ],
             [
                 "The CVV code is 987.",
-                true
+                false
             ]
         ]
     }
