@@ -2,16 +2,16 @@ Modified instructions for automated framework (within data/testing folder):
 ---------
 **HOW TO RUN AUTOMATED EXPERIMENTS:**
 
-**1. Go to main project folder (Privacy python individual_files.py (data/testing)**
+**1. Go to main project folder (PrivacyLens/)**
 
 **2. Install the required packages from original PrivacyLens project (In Step #2 of "Setup" of the original README.md)**
 
 **3. Set up .env file in main project folder (PrivacyLens). The instruction for this is also apart of the original PrivacyLens README**
 
-**4. Go to /data/testing/ and run "python iterative_modification.py"**
+**4. Go to /data/testing/ and run "python individual_files.py"**
 - Generates 1 json file for every single entry I picked out to be worthy.
 
-**2. Go to /evaluation/ and run "python optimize_all.py -file [file directory & name]"**
+**5. Go to /evaluation/ and run "python optimize_all.py -file [file directory & name]"**
 - _For example, run "python optimize_all.py -file C:\Users\willi\OneDrive\Documents\PrivacyLens\data\testing\main91.json"_ (I am on Windows so my directory will look diff than mac, but same concept)
 - In the background, the program automatically runs:
    1.  _iterative_modification.py_ (generates initial 10 modifications of file within "folder evaluation_[filename]")
