@@ -4,6 +4,7 @@ import os
 from dotenv import load_dotenv
 import re
 import argparse
+import subprocess
 
 # Load environment variables from .env file
 load_dotenv()
@@ -155,9 +156,54 @@ for i in range(1, modification_count + 1):
     modified_data["trajectory"]["executable_trajectory"] = modified_executable_trajectory
 
     # Define the output file path and save modified data
-    modified_file_path = os.path.join(output_dir, f"main91_test{i}.json")
+    modified_file_path = os.path.join(output_dir, f"{file_basename}_test{i}.json")
     with open(modified_file_path, 'w') as modified_file:
         json.dump(modified_data, modified_file, indent=4)
     print(f"Saved modified file at: {modified_file_path}")
 
 print("\nMessage identification, modification, and file saving complete.")
+
+# Function for evaluating generated files
+def evaluate_generated_files(output_dir, file_basename):
+    """Evaluate each generated file for leaks."""
+    # Absolute paths for the evaluation scripts
+    evaluation_dir = "C:\\Users\\willi\\OneDrive\\Documents\\PrivacyLens\\evaluation"
+    get_final_action_script = os.path.join(evaluation_dir, "get_final_action.py")
+    gpt_evaluate_action_script = os.path.join(evaluation_dir, "gpt_evaluate_action.py")
+
+    for i in range(1, modification_count + 1):
+        test_file_path = os.path.join(output_dir, f"{file_basename}_test{i}.json")
+        actions_csv_path = os.path.join(output_dir, f"{file_basename}_test{i}.csv")
+        eval_output_path = os.path.join(output_dir, f"EvalOutput_{file_basename}_test{i}.json")
+        
+        # Run evaluation commands
+        subprocess.run([
+            "python", get_final_action_script,
+            "--input-path", test_file_path,
+            "--output-path", actions_csv_path,
+            "--model", "gpt-4o-mini",
+            "--prompt-type", "naive",
+            "--start-index", "0",
+            "--num", "1"
+        ], check=True)
+        
+        subprocess.run([
+            "python", gpt_evaluate_action_script,
+            "--data-path", test_file_path,
+            "--action-path", actions_csv_path,
+            "--step", "judge_leakage",
+            "--output-path", eval_output_path
+        ], check=True)
+        
+        # Check for leaks
+        with open(eval_output_path, 'r') as eval_file:
+            eval_data = json.load(eval_file)
+            if '"leak_info": true' in json.dumps(eval_data):
+                leaked_file_path = os.path.join(output_dir, f"Leaked_{file_basename}_test{i}.json")
+                os.rename(test_file_path, leaked_file_path)
+                print(f"Leak detected in {test_file_path}. Renamed to {leaked_file_path}")
+                break
+
+
+# Evaluate generated files
+evaluate_generated_files(output_dir, file_basename)
