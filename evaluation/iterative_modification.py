@@ -16,11 +16,15 @@ parser.add_argument('-file', required=True, help="Filename to run the iterative 
 args = parser.parse_args()
 filename = args.file  # Retrieve filename from the argument
 
-# Resolve the full path of the input file
-main_file_path = os.path.abspath(filename)
 
 # Extract the base directory and filename without extension for dynamic paths
-base_dir = os.path.dirname(main_file_path)
+#base_dir = os.path.dirname(main_file_path)
+# Set the base directory to the data/testing folder
+base_dir = "C:\\Users\\willi\\OneDrive\\Documents\\PrivacyLens\\data\\testing"
+
+# Resolve the full path of the input file
+main_file_path = os.path.join(base_dir, filename)
+
 file_basename = os.path.splitext(os.path.basename(main_file_path))[0]
 
 # Create a unique output directory based on the file's base name
@@ -31,6 +35,24 @@ os.makedirs(output_dir, exist_ok=True)
 # Set parameters
 model = "gpt-4o-mini"
 modification_count = 10
+
+# Helper functions to add and remove square brackets
+def add_square_brackets_to_file(file_path):
+    """Temporarily add square brackets at the start and end of the JSON file."""
+    with open(file_path, 'r') as file:
+        content = file.read()
+    with open(file_path, 'w') as file:
+        file.write(f"[{content}]")
+
+def remove_square_brackets_from_file(file_path):
+    """Remove the opening and closing square brackets from the JSON file."""
+    with open(file_path, 'r') as file:
+        content = file.read()
+    # Remove the brackets if they exist
+    if content.startswith("[") and content.endswith("]"):
+        content = content[1:-1]
+    with open(file_path, 'w') as file:
+        file.write(content)
 
 # Helper function to generate a unique, inconspicuous modification of the message
 def get_unique_modified_message(original_message, previous_messages):
@@ -164,6 +186,7 @@ for i in range(1, modification_count + 1):
 print("\nMessage identification, modification, and file saving complete.")
 
 # Function for evaluating generated files
+# Function for evaluating generated files
 def evaluate_generated_files(output_dir, file_basename):
     """Evaluate each generated file for leaks."""
     # Absolute paths for the evaluation scripts
@@ -176,33 +199,42 @@ def evaluate_generated_files(output_dir, file_basename):
         actions_csv_path = os.path.join(output_dir, f"{file_basename}_test{i}.csv")
         eval_output_path = os.path.join(output_dir, f"EvalOutput_{file_basename}_test{i}.json")
         
-        # Run evaluation commands
-        subprocess.run([
-            "python", get_final_action_script,
-            "--input-path", test_file_path,
-            "--output-path", actions_csv_path,
-            "--model", "gpt-4o-mini",
-            "--prompt-type", "naive",
-            "--start-index", "0",
-            "--num", "1"
-        ], check=True)
+        # Add square brackets to the test file before evaluation
+        add_square_brackets_to_file(test_file_path)
         
-        subprocess.run([
-            "python", gpt_evaluate_action_script,
-            "--data-path", test_file_path,
-            "--action-path", actions_csv_path,
-            "--step", "judge_leakage",
-            "--output-path", eval_output_path
-        ], check=True)
+        # Run evaluation commands
+        try:
+            subprocess.run([
+                "python", get_final_action_script,
+                "--input-path", test_file_path,
+                "--output-path", actions_csv_path,
+                "--model", "gpt-4o-mini",
+                "--prompt-type", "naive",
+                "--start-index", "0",
+                "--num", "1"
+            ], check=True)
+            
+            subprocess.run([
+                "python", gpt_evaluate_action_script,
+                "--data-path", test_file_path,
+                "--action-path", actions_csv_path,
+                "--step", "judge_leakage",
+                "--output-path", eval_output_path
+            ], check=True)
+        finally:
+            # Always remove square brackets from the test file after evaluation
+            remove_square_brackets_from_file(test_file_path)
         
         # Check for leaks
         with open(eval_output_path, 'r') as eval_file:
             eval_data = json.load(eval_file)
             if '"leak_info": true' in json.dumps(eval_data):
-                leaked_file_path = os.path.join(output_dir, f"Leaked_{file_basename}_test{i}.json")
+                leaked_file_path = os.path.join(output_dir, f"Leaked_{file_basename}_test{i}_try1.json")
                 os.rename(test_file_path, leaked_file_path)
                 print(f"Leak detected in {test_file_path}. Renamed to {leaked_file_path}")
-                break
+            else:
+                print(f"No leak detected in {test_file_path}.")
+
 
 
 # Evaluate generated files

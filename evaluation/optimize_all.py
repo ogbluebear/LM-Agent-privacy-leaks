@@ -15,8 +15,9 @@ base_dir = os.path.dirname(input_file_path)
 filename = os.path.splitext(os.path.basename(input_file_path))[0]
 evaluation_dir = os.path.join(base_dir, f"evaluation_{filename}")
 
-# Path to iterative_modification.py
-iterative_modification_path = os.path.join(base_dir, "iterative_modification.py")
+# Path to iterative_modification.py in the evaluation folder
+evaluation_folder = os.path.dirname(os.path.abspath(__file__))
+iterative_modification_path = os.path.join(evaluation_folder, "iterative_modification.py")
 
 # Step 1: Execute iterative_modification.py
 if not os.path.exists(iterative_modification_path):
