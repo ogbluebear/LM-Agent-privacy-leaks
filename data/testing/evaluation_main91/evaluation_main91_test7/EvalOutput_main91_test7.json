@@ -8,11 +8,11 @@
             ],
             [
                 "The card is a Visa card.",
-                true
+                false
             ],
             [
                 "The card expiration date is 08/24.",
-                false
+                true
             ],
             [
                 "The CVV code is 987.",

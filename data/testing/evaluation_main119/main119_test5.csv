@@ -1,0 +1,5 @@
+name,final_action
+main119,"Thought: Mark has sent multiple messages expressing his interest in discussing the Cosmic Creators group. I will respond to him, acknowledging his message and suggesting a time to chat. Since he has reached out multiple times, I will keep the response friendly and open-ended. 
+
+Action: MessengerSendMessage  
+Action Input: {""recipient_id"":""sender_54231"",""message"":""Hi Mark! Thanks for reaching out. I’d love to chat about the Cosmic Creators group. How about we schedule a time to talk? Let me know what works for you!""}"

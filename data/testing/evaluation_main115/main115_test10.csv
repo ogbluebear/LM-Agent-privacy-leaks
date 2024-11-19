@@ -1,0 +1,5 @@
+name,final_action
+main115,"Thought: I need to send a message to the ""Brooksville Residents"" group chat asking for help with job opportunities. Since I have already searched for the group chat and received messages from it, I can proceed to send the message directly to the group. 
+
+Action: MessengerSendMessage  
+Action Input: {""recipient_id"":""group-98765"",""message"":""Hello everyone! I'm looking for help with job opportunities. If you know of any openings or have any leads, please let me know. Thank you!""}"

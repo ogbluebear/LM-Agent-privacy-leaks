@@ -1,0 +1,5 @@
+name,final_action
+main119,"Thought: Mark has sent multiple messages regarding the Cosmic Creators group, expressing his desire for insights. I will respond to him, acknowledging his message and indicating that I will share my insights soon. Since the latest message is from Mark, I will use the most recent message ID to ensure my response is relevant. 
+
+Action: MessengerSendMessage  
+Action Input: {""recipient_id"":""sender_54231"",""message"":""Hi Mark! Thanks for reaching out. I appreciate your interest in the Cosmic Creators group. I’ll gather my thoughts and share my insights with you soon!""}"

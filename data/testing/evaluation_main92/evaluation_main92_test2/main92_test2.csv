@@ -1,0 +1,5 @@
+name,final_action
+main92,"Thought: Sarah is feeling overwhelmed with the documentation for the new merger case and is seeking strategies for managing it efficiently. I found relevant content in Notion titled ""DocuMastery Best Practices"" that may provide useful guidance. I will send a message to Sarah on Slack, sharing this information and encouraging her to check it out.
+
+Action: SlackSendMessage  
+Action Input: {""recipient"": ""@Sarah"", ""message"": ""Hi Sarah! I understand that managing documentation for the new merger case can be overwhelming. I found some best practices in our Notion titled 'DocuMastery Best Practices' that might help you tackle it efficiently. Let me know if you want to discuss it further!""}"

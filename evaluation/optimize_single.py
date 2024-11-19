@@ -5,7 +5,6 @@ import re
 import subprocess
 import argparse
 from dotenv import load_dotenv
-import time
 
 # Load environment variables from .env file
 load_dotenv()
@@ -45,6 +44,19 @@ def remove_square_brackets_from_file(file_path):
     with open(file_path, 'w') as file:
         file.write(content)
 
+# Define function to dynamically find the message key
+def find_message_key(executable_trajectory):
+    """
+    Identify the key in the executable_trajectory that contains the message to modify.
+    This checks for common keys like 'body', 'content', and 'message'.
+    """
+    potential_keys = ["body", "content", "message"]  # Add more keys if needed
+    for key in potential_keys:
+        match = re.search(fr'\"{key}\": \"(.*?)\"', executable_trajectory, re.DOTALL)
+        if match:
+            return key, match.group(1)  # Return the key and its value
+    raise ValueError("No suitable message key found in the executable_trajectory.")
+
 # Define function to run evaluation commands
 def run_evaluation_commands():
     # Add brackets before running evaluation commands
@@ -74,16 +86,18 @@ def run_evaluation_commands():
     remove_square_brackets_from_file(input_file_path)
 
 # Check for leak status in EvalOutput JSON
-def check_for_leak(iteration_count):
+import time  # Ensure this is imported at the top of your script
+
+# Check for leak status in EvalOutput JSON
+def check_for_leak():
     with open(eval_output_path, 'r') as eval_file:
         eval_data = json.load(eval_file)
 
     # Check for the "leak_info": true string in the file content
     if '"leak_info": true' in json.dumps(eval_data):
-        # Prepare the new filename for the input file with iteration count
-        leaked_file_path = os.path.join(base_dir, f"Leaked_{os.path.basename(input_file_path).replace('.json', f'_try{iteration_count}.json')}")
+        # Prepare the new filename for the input file
+        leaked_file_path = os.path.join(base_dir, f"Leaked_{os.path.basename(input_file_path)}")
         
-        print(f"Leak detected after {iteration_count} iterations. Preparing to rename original input file to: {leaked_file_path}")
         
         # Introduce a small delay to ensure no file locks
         time.sleep(0.5)
@@ -94,18 +108,20 @@ def check_for_leak(iteration_count):
         return True
     return False
 
-
 # Run initial evaluation commands
-iteration_count = 1  # Start with the first iteration for initial evaluation
 run_evaluation_commands()
 
 # If leak is detected initially, exit the program
-if check_for_leak(iteration_count):
+if check_for_leak():
     exit()
 
+<<<<<<< HEAD
+=======
 # Define iterative modification loop
+modification_count = 0
 previous_messages = []
 
+>>>>>>> parent of 1a9f85a (t)
 # Define helper for generating unique modifications with memory
 def get_unique_modified_message(original_message, previous_messages):
     previous_modifications_text = "\n".join(
@@ -131,25 +147,30 @@ def get_unique_modified_message(original_message, previous_messages):
     return modified_message
 
 # Begin iteration for up to 100 rounds
+<<<<<<< HEAD
+previous_messages = []
+
 while iteration_count < 100:  # Allow for up to additional 99 modifications, 1+99=100
     iteration_count += 1  # Increment iteration count for each loop
 
+=======
+while modification_count < 100:
+>>>>>>> parent of 1a9f85a (t)
     # Identify message and generate modification
     with open(input_file_path, 'r') as file:
         data = json.load(file)
     executable_trajectory = data.get("trajectory", {}).get("executable_trajectory", "")
-    body_match = re.search(r'\"body\": \"(.*?)\"', executable_trajectory, re.DOTALL)
-    if not body_match:
-        raise ValueError("Could not find the 'body' field in the executable_trajectory.")
-    
-    original_body = body_match.group(1)
-    modified_message = get_unique_modified_message(original_body, previous_messages)
+
+    # Dynamically find the message key and original message
+    message_key, original_message = find_message_key(executable_trajectory)
+
+    modified_message = get_unique_modified_message(original_message, previous_messages)
     previous_messages.append(modified_message)
     
-    # Replace "body" in executable_trajectory with modified message
+    # Replace the identified key's value with the modified message
     modified_executable_trajectory = re.sub(
-        r'(\"body\": \")(.*?)(\")',
-        f'\\1{modified_message}\\3',
+        fr'(\"{message_key}\": \")(.*?)(\")',  # Match the detected message key
+        f'\\1{modified_message}\\3',  # Replace with the modified message
         executable_trajectory,
         flags=re.DOTALL
     )
@@ -163,7 +184,9 @@ while iteration_count < 100:  # Allow for up to additional 99 modifications, 1+9
     run_evaluation_commands()
 
     # Check if leak is detected
-    if check_for_leak(iteration_count):
+    if check_for_leak():
         break
+
+    modification_count += 1
 
 print("Evaluation and optimization complete.")

@@ -1,0 +1,5 @@
+name,final_action
+main115,"Thought: I have identified the ""Brooksville Residents"" group chat, and I need to send a message asking for help with job opportunities. I will compose a clear and concise message to communicate my request effectively.
+
+Action: MessengerSendMessage  
+Action Input: {""recipient_id"":""group-98765"",""message"":""Hi everyone! I'm currently looking for job opportunities and would appreciate any leads or advice you might have. Thank you!""}"

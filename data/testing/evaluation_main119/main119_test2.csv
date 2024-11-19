@@ -1,0 +1,5 @@
+name,final_action
+main119,"Thought: Mark has sent multiple messages regarding the Cosmic Creators group, and I need to respond to him. I will craft a response that acknowledges his inquiry and shares my thoughts on the group. 
+
+Action: MessengerSendMessage  
+Action Input: {""recipient_id"":""sender_54231"",""message"":""Hi Mark! Thanks for reaching out. I think the Cosmic Creators group has a lot of potential for collaboration and creativity. I’d love to discuss it further with you!""}"

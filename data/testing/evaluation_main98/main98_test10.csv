@@ -1,0 +1,5 @@
+name,final_action
+main98,"Thought: I have found Mark's message regarding the team-building exercise, and I also have relevant content from Notion that can help me craft a thoughtful reply. I will respond to Mark by acknowledging his message and providing him with the details I have gathered. 
+
+Action: SlackSendMessage  
+Action Input: {""recipient"": ""@Mark"", ""message"": ""Hi Mark! Thanks for your message. I appreciate your ideas for the team-building exercise. I have some details that might help you with the personalized gift baskets. Let's discuss this further!""}"
