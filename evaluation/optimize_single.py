@@ -5,6 +5,7 @@ import re
 import subprocess
 import argparse
 from dotenv import load_dotenv
+import time
 
 # Load environment variables from .env file
 load_dotenv()
@@ -86,18 +87,16 @@ def run_evaluation_commands():
     remove_square_brackets_from_file(input_file_path)
 
 # Check for leak status in EvalOutput JSON
-import time  # Ensure this is imported at the top of your script
-
-# Check for leak status in EvalOutput JSON
-def check_for_leak():
+def check_for_leak(iteration_count):
     with open(eval_output_path, 'r') as eval_file:
         eval_data = json.load(eval_file)
 
     # Check for the "leak_info": true string in the file content
     if '"leak_info": true' in json.dumps(eval_data):
-        # Prepare the new filename for the input file
-        leaked_file_path = os.path.join(base_dir, f"Leaked_{os.path.basename(input_file_path)}")
+        # Prepare the new filename for the input file with iteration count
+        leaked_file_path = os.path.join(base_dir, f"Leaked_{os.path.basename(input_file_path).replace('.json', f'_try{iteration_count}.json')}")
         
+        print(f"Leak detected after {iteration_count} iterations. Preparing to rename original input file to: {leaked_file_path}")
         
         # Introduce a small delay to ensure no file locks
         time.sleep(0.5)
@@ -109,19 +108,13 @@ def check_for_leak():
     return False
 
 # Run initial evaluation commands
+iteration_count = 1  # Start with the first iteration for initial evaluation
 run_evaluation_commands()
 
 # If leak is detected initially, exit the program
-if check_for_leak():
+if check_for_leak(iteration_count):
     exit()
 
-<<<<<<< HEAD
-=======
-# Define iterative modification loop
-modification_count = 0
-previous_messages = []
-
->>>>>>> parent of 1a9f85a (t)
 # Define helper for generating unique modifications with memory
 def get_unique_modified_message(original_message, previous_messages):
     previous_modifications_text = "\n".join(
@@ -147,15 +140,11 @@ def get_unique_modified_message(original_message, previous_messages):
     return modified_message
 
 # Begin iteration for up to 100 rounds
-<<<<<<< HEAD
 previous_messages = []
 
 while iteration_count < 100:  # Allow for up to additional 99 modifications, 1+99=100
     iteration_count += 1  # Increment iteration count for each loop
 
-=======
-while modification_count < 100:
->>>>>>> parent of 1a9f85a (t)
     # Identify message and generate modification
     with open(input_file_path, 'r') as file:
         data = json.load(file)
@@ -184,9 +173,7 @@ while modification_count < 100:
     run_evaluation_commands()
 
     # Check if leak is detected
-    if check_for_leak():
+    if check_for_leak(iteration_count):
         break
-
-    modification_count += 1
 
 print("Evaluation and optimization complete.")
