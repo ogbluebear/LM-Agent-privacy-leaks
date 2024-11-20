@@ -1,4 +1,4 @@
-{
+[{
     "name": "main154",
     "seed": {
         "data_type": "therapy appointment times",
@@ -30,4 +30,4 @@
             "Emily Doe's therapy appointment is scheduled for February 24th at 3 PM."
         ]
     }
-}
+}]
