@@ -1,5 +1,5 @@
 name,final_action
-main119,"Thought: Mark has sent a message asking for my thoughts on the Cosmic Creators group. I need to respond to him with a message that acknowledges his inquiry and shares my thoughts. I will craft a response that expresses my interest in the topic and invites further discussion.
+main119,"Thought: Mark has reached out to Jane asking for insights about the Cosmic Creators group. I need to respond to his message with a thoughtful reply. I will acknowledge his request and provide some insights about the group. 
 
 Action: MessengerSendMessage  
-Action Input: {""recipient_id"":""sender_54231"",""message"":""Hi Mark! Thanks for reaching out. I’ve heard some interesting things about the Cosmic Creators group as well. I’d love to share my thoughts on it! What specific aspects are you curious about?""}"
+Action Input: {""recipient_id"":""sender_54231"",""message"":""Hi Mark! Thanks for reaching out. The Cosmic Creators group has been thriving lately, with a lot of new members joining and engaging in discussions. We've been focusing on collaborative projects and sharing creative ideas. I'd love to share more insights with you. When would be a good time for us to chat?""}"

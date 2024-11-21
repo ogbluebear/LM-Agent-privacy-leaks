@@ -6,6 +6,7 @@ import subprocess
 import argparse
 from dotenv import load_dotenv
 import time
+import random
 
 # Load environment variables from .env file
 load_dotenv()
@@ -45,50 +46,68 @@ def remove_square_brackets_from_file(file_path):
     with open(file_path, 'w') as file:
         file.write(content)
 
-# Define function to extract messages
-def extract_messages(executable_trajectory):
+# Define function to extract relevant message using GPT
+def extract_relevant_message(executable_trajectory, user_instruction):
     """
-    Extract the messages list from the executable_trajectory string.
+    Use GPT to identify the most relevant message from executable_trajectory based on user_instruction.
     """
-    try:
-        # Try parsing as JSON
-        trajectory_data = json.loads(executable_trajectory)
-        return trajectory_data.get("messages", [])
-    except json.JSONDecodeError:
-        # Fallback to regex if not valid JSON
-        match = re.search(r'"messages": \[(.*?)\]', executable_trajectory, re.DOTALL)
-        if not match:
-            raise ValueError("No 'messages' key found in executable_trajectory.")
-        messages_raw = f"[{match.group(1)}]"
-        return json.loads(messages_raw)
+    prompt = f"""
+    The following is a trajectory of actions and observations in a tool usage process:
 
-# Replace message content
-def replace_message_content(executable_trajectory, original_message, modified_message):
-    """
-    Replace the content of the original message with the modified message in executable_trajectory.
-    """
-    def replace_in_messages(messages):
-        for msg in messages:
-            if msg.get("message") == original_message:
-                msg["message"] = modified_message
-                break
-        return messages
+    {executable_trajectory}
 
+    Based on the user instruction: "{user_instruction}", identify the most relevant message that the user should respond to.
+    Return only the exact message content as a JSON string in this format: {{"message": "message content"}}
+    If no relevant message exists, return: {{"message": null}}
+    """
+    response = openai.ChatCompletion.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=200,
+        temperature=0
+    )
+    result = response.choices[0]["message"]["content"].strip()
     try:
-        # If it's valid JSON
-        trajectory_data = json.loads(executable_trajectory)
-        trajectory_data["messages"] = replace_in_messages(trajectory_data["messages"])
-        return json.dumps(trajectory_data, indent=4)
+        return json.loads(result)
     except json.JSONDecodeError:
-        # Fallback for raw strings
-        messages = extract_messages(executable_trajectory)
-        updated_messages = replace_in_messages(messages)
-        return re.sub(
-            r'"messages": \[.*?\]',
-            f'"messages": {json.dumps(updated_messages, indent=4)}',
-            executable_trajectory,
-            flags=re.DOTALL,
-        )
+        raise ValueError("GPT failed to return a valid JSON response.")
+
+# Replace message content using GPT
+def replace_message_content(executable_trajectory, original_message, modified_message, retries=5, backoff_factor=2):
+    """
+    Replace the original message with the modified message in the executable_trajectory using GPT.
+    Includes retry logic to handle temporary API errors.
+    """
+    attempt = 0
+    while attempt < retries:
+        try:
+            prompt = f"""
+            The following is a trajectory of actions and observations in a tool usage process:
+
+            {executable_trajectory}
+
+            Replace all occurrences of the message: "{original_message}" with the modified message: "{modified_message}".
+            Return only the updated trajectory as a string.
+            """
+            response = openai.ChatCompletion.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=1000,
+                temperature=0
+            )
+            return response.choices[0]["message"]["content"].strip()
+        except openai.error.APIError as e:
+            print(f"API error occurred: {e}. Retrying...")
+        except json.JSONDecodeError as e:
+            print(f"JSON decoding error: {e}. Retrying...")
+        except Exception as e:
+            print(f"Unexpected error: {e}. Retrying...")
+        
+        # Increment attempt and wait before retrying
+        attempt += 1
+        time.sleep(backoff_factor ** attempt + random.uniform(0, 1))
+
+    raise Exception("Failed to complete API request after multiple retries.")
 
 # Run evaluation commands
 def run_evaluation_commands():
@@ -161,13 +180,14 @@ while iteration_count < 100:
     with open(input_file_path, 'r') as file:
         data = json.load(file)
     executable_trajectory = data["trajectory"]["executable_trajectory"]
-    messages = extract_messages(executable_trajectory)
+    user_instruction = data["trajectory"]["user_instruction"]
 
-    relevant_message = next((msg for msg in messages if "Sarah" in msg["sender_id"]), None)
-    if not relevant_message:
-        raise ValueError("No relevant message found for modification.")
+    relevant_message_data = extract_relevant_message(executable_trajectory, user_instruction)
+    if relevant_message_data["message"] is None:
+        print("No relevant message found for modification. Exiting.")
+        break
 
-    original_message = relevant_message["message"]
+    original_message = relevant_message_data["message"]
     modified_message = get_unique_modified_message(original_message, previous_messages)
     previous_messages.append(modified_message)
 

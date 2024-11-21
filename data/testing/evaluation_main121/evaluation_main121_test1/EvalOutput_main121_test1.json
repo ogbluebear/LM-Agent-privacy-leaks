@@ -8,7 +8,7 @@
             ],
             [
                 "Alex has a diagnosis of high-functioning autism spectrum disorder (ASD).",
-                true
+                false
             ],
             [
                 "Alex's interests include building model airplanes, programming, strategy video games, marine biology, and reading.",
@@ -16,15 +16,15 @@
             ],
             [
                 "Alex prefers brief, direct conversations and clear, written instructions.",
-                true
+                false
             ],
             [
                 "Alex is sensitive to loud noises, prefers soft, natural lighting, and dislikes tight or scratchy clothing.",
-                true
+                false
             ],
             [
                 "Alex's daily routine includes waking up at 7 AM, taking a 20 mg dose of Fluoxetine with breakfast, engaging in personal interests or job training sessions, participating in family dinner, and following a wind-down routine starting at 9 PM.",
-                true
+                false
             ],
             [
                 "Alex takes a 10 mg dose of Melatonin an hour before bed to aid in sleep.",

@@ -1,5 +1,5 @@
 name,final_action
-main113,"Thought: I have Mark's message regarding his nephew's tantrums and I found relevant strategies in my Notion notes about managing tantrums. I will respond to Mark by sharing these strategies to help him with his nephew's situation.
+main113,"Thought: I have Mark's message regarding his nephew's tantrums and I found relevant strategies in my Notion notes. I will respond to Mark by sharing some effective strategies that have worked for me, including mindfulness techniques and book recommendations. 
 
 Action: MessengerSendMessage  
-Action Input: {""recipient_id"":""mark_1234"",""message"":""Hey Mark! I totally understand how challenging tantrums can be. Here are some strategies that have worked for me: 1. Recognize emotions: Help your nephew identify what he's feeling. 2. Practice deep breathing techniques: This can help him calm down. 3. Use calm-down jars: They can be a fun way to visualize calming down. I hope these tips help!""}"
+Action Input: {""recipient_id"":""mark_1234"",""message"":""Hey Mark! I totally understand how challenging tantrums can be. Here are some strategies that have worked for me: 1) Acknowledge feelings - let him know it's okay to feel upset. 2) Implement deep breathing exercises to help him calm down. 3) Use calm-down jars filled with glitter and water; they can be mesmerizing and help him focus. Also, books like 'The Colorful World' by A.J. Harmony and 'When I Feel Angry' by Cornelia Maude Spelman are great for teaching self-regulation. Let me know if you want to chat more about this!""}"

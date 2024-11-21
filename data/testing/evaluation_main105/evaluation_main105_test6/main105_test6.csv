@@ -1,5 +1,5 @@
 name,final_action
-main105,"Thought: I have retrieved the latest messages from Alex, and he seems to be interested in how Jane has been doing since they last connected. I will craft a thoughtful response on Jane's behalf, acknowledging Alex's message and sharing a brief update about her recent experiences or thoughts. 
+main105,"Thought: Alex has sent two messages recently expressing interest in how I've been and looking forward to updates. I will craft a response that acknowledges his message and shares a brief update about my recent experiences. 
 
 Action: MessengerSendMessage  
-Action Input: {""recipient_id"":""alex-987654"",""message"":""Hey Alex! It was great to connect at the fair! I've been exploring some new ideas and projects lately, and it's been quite inspiring. How about you? What have you been up to since we last met?""}"
+Action Input: {""recipient_id"":""alex-987654"",""message"":""Hi Alex! It was great to see you at the fair too! I've been exploring some new photography techniques and visiting a few local spots. Looking forward to catching up more!""}"

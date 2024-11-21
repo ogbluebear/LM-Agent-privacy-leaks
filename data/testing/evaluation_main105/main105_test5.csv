@@ -1,5 +1,5 @@
 name,final_action
-main105,"Thought: I need to reply to Alex's message on Jane's behalf. Since Alex's message expresses interest in how Jane has been doing, I will craft a friendly and engaging response that acknowledges his message and provides a brief update on her life. 
+main105,"Thought: I need to reply to Alex's message on Jane's behalf. He asked how she has been since they met at the fair. I will craft a friendly response that acknowledges their meeting and provides a brief update on how Jane has been doing. 
 
 Action: MessengerSendMessage  
-Action Input: {""recipient_id"":""alex-987654"",""message"":""Hey Alex! It was great to see you at the fair too! I've been doing well, just keeping busy with work and some new hobbies. How about you?""}"
+Action Input: {""recipient_id"":""alex-987654"",""message"":""Hey Alex! It was great meeting you too! I've been doing well, just keeping busy with some photography projects. How about you?""}"

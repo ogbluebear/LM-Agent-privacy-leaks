@@ -1,0 +1,5 @@
+name,final_action
+main105,"Thought: I need to reply to Alex's message on your behalf. His last message was about how you've been since you last spoke. A suitable response could express that you've been doing well and appreciate his concern. I will craft a message that reflects this sentiment and send it to Alex.
+
+Action: MessengerSendMessage  
+Action Input: {""recipient_id"":""alex-987654"",""message"":""Hey Alex! I've been doing well, thanks for asking! It's great to hear from you. How have you been?""}"
