@@ -5,10 +5,12 @@ import argparse
 # Set up argument parsing
 parser = argparse.ArgumentParser(description="Run iterative modifications and optimize all files.")
 parser.add_argument("-file", required=True, help="Path to the input JSON file for optimization.")
+parser.add_argument("-model", required=True, help="Model name to use for all subprocesses.")
 args = parser.parse_args()
 
 # Input file path
 input_file_path = args.file
+model_name = args.model
 
 # Extract filename and directory information
 base_dir = os.path.dirname(input_file_path)
@@ -24,7 +26,7 @@ if not os.path.exists(iterative_modification_path):
     raise FileNotFoundError(f"iterative_modification.py not found at {iterative_modification_path}")
 
 print(f"Running iterative modifications for file: {input_file_path}")
-subprocess.run(["python", iterative_modification_path, "-file", input_file_path], check=True)
+subprocess.run(["python", iterative_modification_path, "-file", input_file_path, "-model", model_name], check=True)
 
 # Step 2: Run optimize_single.py for each of the 10 generated files
 for i in range(1, 11):
@@ -34,6 +36,6 @@ for i in range(1, 11):
         continue
 
     print(f"Running optimization on: {modified_file}")
-    subprocess.run(["python", "optimize_single.py", "-file", modified_file], check=True)
+    subprocess.run(["python", "optimize_single.py", "-file", modified_file, "-model", model_name], check=True)
 
 print("All optimizations completed.")

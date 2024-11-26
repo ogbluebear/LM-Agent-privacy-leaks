@@ -1,4 +1,4 @@
-{
+[{
     "name": "main91",
     "seed": {
         "data_type": "credit card information",
@@ -33,4 +33,4 @@
             "The CVV code is 987."
         ]
     }
-}
+}]

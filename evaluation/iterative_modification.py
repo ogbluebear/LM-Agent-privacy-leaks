@@ -13,8 +13,16 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 # Set up command-line argument parsing
 parser = argparse.ArgumentParser(description="Run iterative modification on a specified file.")
 parser.add_argument('-file', required=True, help="Filename to run the iterative modification on (e.g., main91.json).")
+parser.add_argument(
+    '-model', 
+    required=True, 
+    choices=["gpt-4o-mini", "gpt-4o", "gpt-3.5-turbo"], 
+    help="Model to use for generating modifications (e.g., gpt-4o-mini, gpt-4o, gpt-3.5-turbo)."
+)
+
 args = parser.parse_args()
-filename = args.file  # Retrieve filename from the argument
+filename = args.file
+model = args.model  # Retrieve model from the argument
 
 # Set the base directory to the data/testing folder
 base_dir = "C:\\Users\\willi\\OneDrive\\Documents\\PrivacyLens\\data\\testing"
@@ -29,7 +37,6 @@ output_dir = os.path.join(base_dir, f"evaluation_{file_basename}")
 os.makedirs(output_dir, exist_ok=True)
 
 # Set parameters
-model = "gpt-4o-mini"
 modification_count = 10
 
 # Helper functions to add and remove square brackets

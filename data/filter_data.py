@@ -18,7 +18,7 @@ output_file = 'original_filtered_output.json'
 
 # Specify the list of selected entries
 selected_names = [
-    'main91', 'main92', 'main95', 'main97', 'main98', 'main105', 'main113', 'main115', 'main119', 'main121',
+    'main91', 'main92', 'main95', 'main97', 'main98', 'main105', 'main113', 'main115', 'main119', 
     'main127', 'main141', 'main143', 'main154', 'main162', 'main168', 'main173', 'main176', 'main187', 'main191',
     'main196', 'main200', 'main204', 'main231', 'main242', 'main263', 'main266', 'main275', 'main277', 'main278',
     'main280', 'main281', 'main283', 'main290', 'main300', 'main302', 'main304', 'main305', 'main309', 'main329',

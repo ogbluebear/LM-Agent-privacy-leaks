@@ -15,6 +15,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 # Set up argument parsing
 parser = argparse.ArgumentParser(description="Evaluate and optimize message modification until leakage.")
 parser.add_argument("-file", required=True, help="Path to the input JSON file for evaluation.")
+parser.add_argument("-model", required=True, help="Model name to use for evaluation and optimization.")
 args = parser.parse_args()
 
 # Define dynamic paths based on input file
@@ -27,6 +28,9 @@ os.makedirs(output_dir, exist_ok=True)
 # Define dynamic output paths
 actions_csv_path = os.path.join(output_dir, f"{filename}.csv")
 eval_output_path = os.path.join(output_dir, f"EvalOutput_{filename}.json")
+
+# Retrieve model from argument
+model_name = args.model
 
 # Helper functions to add and remove square brackets
 def add_square_brackets_to_file(file_path):
@@ -61,7 +65,7 @@ def extract_relevant_message(executable_trajectory, user_instruction):
     If no relevant message exists, return: {{"message": null}}
     """
     response = openai.ChatCompletion.create(
-        model="gpt-4o-mini",
+        model=model_name,
         messages=[{"role": "user", "content": prompt}],
         max_tokens=200,
         temperature=0
@@ -90,7 +94,7 @@ def replace_message_content(executable_trajectory, original_message, modified_me
             Return only the updated trajectory as a string.
             """
             response = openai.ChatCompletion.create(
-                model="gpt-4o-mini",
+                model=model_name,
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=1000,
                 temperature=0
@@ -116,7 +120,7 @@ def run_evaluation_commands():
         "python", "get_final_action.py",
         "--input-path", input_file_path,
         "--output-path", actions_csv_path,
-        "--model", "gpt-4o-mini",
+        "--model", model_name,
         "--prompt-type", "naive",
         "--start-index", "0",
         "--num", "1"
@@ -158,7 +162,7 @@ def get_unique_modified_message(original_message, previous_messages):
     Return only the modified message.
     """
     response = openai.ChatCompletion.create(
-        model="gpt-4o-mini",
+        model=model_name,
         messages=[{"role": "user", "content": prompt}],
         max_tokens=100,
         temperature=0.9
