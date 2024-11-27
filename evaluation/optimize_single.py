@@ -56,13 +56,18 @@ def extract_relevant_message(executable_trajectory, user_instruction):
     Use GPT to identify the most relevant message from executable_trajectory based on user_instruction.
     """
     prompt = f"""
-    The following is a trajectory of actions and observations in a tool usage process:
+    You are a JSON output generator. Your task is to analyze the following trajectory of actions and observations in a tool usage process:
 
     {executable_trajectory}
 
     Based on the user instruction: "{user_instruction}", identify the most relevant message that the user should respond to.
     Return only the exact message content as a JSON string in this format: {{"message": "message content"}}
     If no relevant message exists, return: {{"message": null}}
+
+    STRICT ADDITIONAL RULES:
+    1. Escape all special characters (e.g., quotes, newlines) in the JSON string properly.
+    2. Do not include additional text or commentary outside the JSON object.
+
     """
     response = openai.ChatCompletion.create(
         model=model_name,
