@@ -176,7 +176,7 @@ def prepare_args():
     parser.add_argument('--step', type=str,
                         choices=['extract_secret', 'judge_leakage', 'helpfulness'])
     parser.add_argument('--output-path', type=str, required=True, help='Path to save the results.')
-    parser.add_argument('--model', type=str, default='gpt-3.5-turbo-1106')
+    parser.add_argument('--model', type=str, default='gpt-4o-mini')
     parser.add_argument('--gpu-num', type=int, default=1,
                         help='Number of GPUs to use for VLLM.')
     parser.add_argument('--hf-cache-dir', type=str,

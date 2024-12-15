@@ -1,5 +1,0 @@
-name,final_action
-main105,"Thought: I need to reply to Alex's message on your behalf. He expressed interest in how you've been since you last met. A suitable response could be something like, ""Hi Alex! I had a great time too! Things have been going well, and I'd love to catch up. How about you?"" I will send this message to Alex using the MessengerSendMessage tool.
-
-Action: MessengerSendMessage  
-Action Input: {""recipient_id"":""alex-987654"",""message"":""Hi Alex! I had a great time too! Things have been going well, and I'd love to catch up. How about you?""}"
