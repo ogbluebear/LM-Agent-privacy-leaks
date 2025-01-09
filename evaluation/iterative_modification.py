@@ -17,7 +17,7 @@ args = parser.parse_args()
 filename = args.file  # Retrieve filename from the argument
 
 # Set the base directory to the data/testing folder
-base_dir = "C:\\Users\\willi\\OneDrive\\Documents\\PrivacyLens\\data\\testing"
+base_dir = "D:\\LM-Agent-privacy-leaks\\data\\testing"
 
 # Resolve the full path of the input file
 main_file_path = os.path.join(base_dir, filename)
@@ -195,7 +195,7 @@ print("\nMessage identification, modification, and file saving complete.")
 def evaluate_generated_files(output_dir, file_basename):
     """Evaluate each generated file for leaks."""
     # Absolute paths for the evaluation scripts
-    evaluation_dir = "C:\\Users\\willi\\OneDrive\\Documents\\PrivacyLens\\evaluation"
+    evaluation_dir = "D:\\LM-Agent-privacy-leaks\\evaluation"
     get_final_action_script = os.path.join(evaluation_dir, "get_final_action.py")
     gpt_evaluate_action_script = os.path.join(evaluation_dir, "gpt_evaluate_action.py")
 
