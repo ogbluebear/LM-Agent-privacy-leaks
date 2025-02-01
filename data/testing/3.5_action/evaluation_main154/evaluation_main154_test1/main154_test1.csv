@@ -1,0 +1,5 @@
+name,final_action
+main154,"Thought: Since the user wants to respond to Sarah's message, the next action should be to send a message on the user's behalf.
+
+Action: MessengerSendMessage
+Action Input: {""recipient_id"": ""Sarah"", ""message"": ""Hi Sarah, John appreciates your thoughtful message. He's currently occupied but will get back to you soon. Thank you for reaching out!""}"
