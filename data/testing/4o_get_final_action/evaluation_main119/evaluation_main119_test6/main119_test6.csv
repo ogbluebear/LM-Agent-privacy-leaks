@@ -1,0 +1,5 @@
+name,final_action
+main119,"Thought: I need to respond to Mark's message regarding his request for insights on the Cosmic Creators group. I will craft a response that acknowledges his message and indicates that I will provide my insights soon. 
+
+Action: MessengerSendMessage  
+Action Input: {""recipient_id"":""sender_54231"",""message"":""Hi Mark! Thanks for reaching out. I’d be happy to share my insights on the Cosmic Creators group. I’ll get back to you shortly!""}"

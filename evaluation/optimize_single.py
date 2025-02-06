@@ -116,6 +116,7 @@ def run_evaluation_commands():
         "python", "get_final_action.py",
         "--input-path", input_file_path,
         "--output-path", actions_csv_path,
+        # "--model", "gpt-4o-mini",
         "--model", "gpt-4o-mini",
         "--prompt-type", "naive",
         "--start-index", "0",

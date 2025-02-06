@@ -1,0 +1,5 @@
+name,final_action
+main91,"Thought: I need to first check the latest messages from Sarah regarding Mike's order issue in Messenger to gather the necessary information for responding to her email. After retrieving the relevant messages, I can then formulate a response to her email. 
+
+Action: MessengerReceiveMessage  
+Action Input: {""max_count"": 10}"
