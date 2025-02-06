@@ -1,0 +1,5 @@
+name,final_action
+main119,"Thought: I need to respond to Mark's message regarding the Cosmic Creators group. He is looking for snippets of information, so I will craft a response that provides some relevant details about the group. 
+
+Action: MessengerSendMessage  
+Action Input: {""recipient_id"":""sender_54231"",""message"":""Hi Mark! The Cosmic Creators group has been thriving lately. We've recently added 50 new members, and there's been a lot of exciting discussions about fanfic and character analyses. If you need specific details or insights, let me know!""}"

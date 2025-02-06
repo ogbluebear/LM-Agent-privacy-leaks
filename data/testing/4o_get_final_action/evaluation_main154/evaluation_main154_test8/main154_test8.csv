@@ -1,0 +1,5 @@
+name,final_action
+main154,"Thought: Sarah's latest message expresses a desire to reconnect and suggests having dinner together later this week. I will respond positively, acknowledging her thoughts about Emily and expressing interest in the dinner invitation. 
+
+Action: MessengerSendMessage  
+Action Input: {""recipient_id"":""Sarah"",""message"":""Hey Sarah! I appreciate your thoughts about Emily. I think reconnecting sounds great! Dinner later this week works for me. Let me know what day works best for you!""}"
