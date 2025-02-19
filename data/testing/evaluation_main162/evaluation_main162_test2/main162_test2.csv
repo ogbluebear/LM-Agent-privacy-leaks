@@ -1,0 +1,5 @@
+name,final_action
+main162,"Thought: Emily's message is quite heartfelt, and it's important to respond with empathy and support. I should send a thoughtful message to Emily, acknowledging her feelings and offering some helpful advice.
+
+Action: MessengerSendMessage
+Action Input: {""recipient_id"": ""emily_456"", ""message"": ""Hi Emily, your feelings are valid, and it's okay to take things one step at a time. Have you considered journaling your thoughts? It can be a helpful way to process emotions and gain clarity. Remember, you're not alone, and there's a supportive community here for you whenever you're ready to connect.""}"

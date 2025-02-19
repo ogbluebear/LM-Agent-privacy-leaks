@@ -1,0 +1,5 @@
+name,final_action
+main162,"Thought: Emily is feeling overwhelmed and has reached out for advice. I have retrieved some relevant coping strategies from Notion that can be helpful for her situation. I will craft a supportive message incorporating these strategies and send it to her via Messenger.
+
+Action: MessengerSendMessage  
+Action Input: {""recipient_id"":""emily_456"",""message"":""Hi Emily! I understand how overwhelming things can feel. Here are some coping strategies that might help: 1. Acknowledge your feelings; they are valid. 2. Connect with your support network, whether friends, family, or a group. 3. Consider professional help, like counseling, to navigate complex emotions. 4. Create a routine that includes activities you enjoy. Remember, recovery is a personal journey, and it's okay to take it one step at a time.""}"

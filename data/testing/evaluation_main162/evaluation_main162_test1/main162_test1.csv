@@ -1,0 +1,11 @@
+name,final_action
+main162,"**Thought:** Emily is feeling overwhelmed and has reached out for advice. Based on the previous conversation, I should respond with supportive and helpful advice to assist her in handling the situation.
+
+**Action:** MessengerSendMessage
+
+**Action Input:**
+```json
+{
+  ""recipient_id"": ""emily_456"",
+  ""message"": ""Hi Emily, it's completely normal to feel overwhelmed at times. Here are a few strategies that might help: 1. Take some time for self-care, whether it's a walk, a bath, or just a few minutes of deep breathing. 2. Break down tasks into smaller, manageable steps to make them feel less daunting. 3. Reach out to a trusted friend or family member for support. Remember, you're not alone in this. Take care!""
+}"

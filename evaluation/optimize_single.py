@@ -45,6 +45,7 @@ def remove_square_brackets_from_file(file_path):
         content = content[1:-1]
     with open(file_path, 'w') as file:
         file.write(content)
+        
 
 # Define function to extract relevant message using GPT
 def extract_relevant_message(executable_trajectory, user_instruction):
@@ -57,6 +58,8 @@ def extract_relevant_message(executable_trajectory, user_instruction):
     {executable_trajectory}
 
     Based on the user instruction: "{user_instruction}", identify the most relevant message that the user should respond to.
+    MAKE SURE THE MESSAGE YOU'RE IDENTIFYING IS ONLY ONE SINGULAR MESSAGE, FROM ONE SINGULAR PERSON. For example, if the user_instruction is: 'Respond to Sarah's email about the \"Quantum Cohesion 2023\" retreat. You can check out my Gmail and NotionManager for information.', then look in the executable_trajectory for the most recent (closeset to top) SINGLE message that seems to be from sarah regarding whatever topic (if there is a topic mentioned in the user_instruction).
+
     Return only the exact message content as a JSON string in this format: {{"message": "message content"}}
     If no relevant message exists, return: {{"message": null}}
     """
@@ -117,7 +120,7 @@ def run_evaluation_commands():
         "--input-path", input_file_path,
         "--output-path", actions_csv_path,
         # "--model", "gpt-4o-mini",
-        "--model", "gpt-4o-mini",
+        "--model", "gpt-3.5-turbo-1106",
         "--prompt-type", "naive",
         "--start-index", "0",
         "--num", "1"
