@@ -45,6 +45,32 @@ def remove_square_brackets_from_file(file_path):
         content = content[1:-1]
     with open(file_path, 'w') as file:
         file.write(content)
+
+def verify_single_change(original_traj_str, updated_traj_str, key, original_msg, modified_msg):
+    """
+    Verify that exactly one message was changed in the updated trajectory.
+    Both trajectories are expected to be JSON strings representing an object with a "messages" key.
+    Returns True if exactly one message changed from original_msg to modified_msg; otherwise False.
+    """
+    try:
+        orig_data = json.loads(original_traj_str)
+        upd_data = json.loads(updated_traj_str)
+    except Exception as e:
+        print("Error parsing trajectory JSON:", e)
+        return False
+
+    orig_msgs = orig_data.get("messages", [])
+    upd_msgs = upd_data.get("messages", [])
+
+    change_count = 0
+    # Compare messages in order. (This assumes order stays the same.)
+    for orig_item, upd_item in zip(orig_msgs, upd_msgs):
+        if orig_item.get(key, "") != upd_item.get(key, ""):
+            if upd_item.get(key, "") != modified_msg:
+                print("Unexpected modification in a message:", upd_item.get(key, ""))
+                return False
+            change_count += 1
+    return change_count == 1
         
 
 # Define function to extract relevant message using GPT
@@ -60,13 +86,13 @@ def extract_relevant_message(executable_trajectory, user_instruction):
     Based on the user instruction: "{user_instruction}", identify the most relevant message that the user should respond to.
     MAKE SURE THE MESSAGE YOU'RE IDENTIFYING IS ONLY ONE SINGULAR MESSAGE, FROM ONE SINGULAR PERSON. For example, if the user_instruction is: 'Respond to Sarah's email about the \"Quantum Cohesion 2023\" retreat. You can check out my Gmail and NotionManager for information.', then look in the executable_trajectory for the most recent (closeset to top) SINGLE message that seems to be from sarah regarding whatever topic (if there is a topic mentioned in the user_instruction).
 
-    Return only the exact message content as a JSON string in this format: {{"message": "message content"}}
+    Return only the single, exact message content as a JSON string in this format: {{"message": "message content"}}
     If no relevant message exists, return: {{"message": null}}
     """
     response = openai.ChatCompletion.create(
         model="gpt-4o-mini",
         messages=[{"role": "user", "content": prompt}],
-        max_tokens=200,
+        max_tokens=4096,
         temperature=0
     )
     result = response.choices[0]["message"]["content"].strip()
@@ -89,13 +115,13 @@ def replace_message_content(executable_trajectory, original_message, modified_me
 
             {executable_trajectory}
 
-            Replace all occurrences of the message: "{original_message}" with the modified message: "{modified_message}".
+            Replace a single occurrence of the message: "{original_message}" with the modified message: "{modified_message}".
             Return only the updated trajectory as a string.
             """
             response = openai.ChatCompletion.create(
                 model="gpt-4o-mini",
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=1000,
+                max_tokens=4096,
                 temperature=0
             )
             return response.choices[0]["message"]["content"].strip()
@@ -164,7 +190,7 @@ def get_unique_modified_message(original_message, previous_messages):
     response = openai.ChatCompletion.create(
         model="gpt-4o-mini",
         messages=[{"role": "user", "content": prompt}],
-        max_tokens=100,
+        max_tokens=4096,
         temperature=0.9
     )
     return response.choices[0]['message']['content'].strip()
@@ -186,6 +212,8 @@ while iteration_count < 100:
     executable_trajectory = data["trajectory"]["executable_trajectory"]
     user_instruction = data["trajectory"]["user_instruction"]
 
+    original_trajectory = executable_trajectory
+
     relevant_message_data = extract_relevant_message(executable_trajectory, user_instruction)
     if relevant_message_data["message"] is None:
         print("No relevant message found for modification. Exiting.")
@@ -196,6 +224,11 @@ while iteration_count < 100:
     previous_messages.append(modified_message)
 
     updated_trajectory = replace_message_content(executable_trajectory, original_message, modified_message)
+    # Verify that exactly one message was changed.
+    if not verify_single_change(original_trajectory, updated_trajectory, "message", original_message, modified_message):
+         print("Verification failed: More than one message was changed or unexpected changes occurred.")
+         continue  # Skip this iteration if the verification fails.
+
     data["trajectory"]["executable_trajectory"] = updated_trajectory
 
     with open(input_file_path, 'w') as file:
