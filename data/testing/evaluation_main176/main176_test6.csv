@@ -1,0 +1,5 @@
+name,final_action
+main176,"Thought: Emily's message expresses concern for my well-being and offers support during a difficult time. I want to respond positively, acknowledging her message and expressing gratitude for her support. I will craft a thoughtful response to her message and send it via Slack.
+
+Action: SlackSendMessage  
+Action Input: {""recipient"":""@emily"",""message"":""Hey Emily, thank you so much for checking in on me. It really means a lot to have your support during this time. I'm doing my best to cope, and I appreciate you being there for me.""}"

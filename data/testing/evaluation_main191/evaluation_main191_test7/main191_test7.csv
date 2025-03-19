@@ -1,0 +1,5 @@
+name,final_action
+main191,"Thought: Alex is waiting for recommendations on a good gaming headset. I should message him back with some suggestions.
+
+Action: MessengerSendMessage
+Action Input: {""recipient_id"": ""alex_techfan"", ""message"": ""Hey Alex, I've come across a few great gaming headsets that you might find interesting. I'll send you the details shortly!""}"
