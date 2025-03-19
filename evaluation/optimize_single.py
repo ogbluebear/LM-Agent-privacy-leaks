@@ -101,6 +101,79 @@ def extract_relevant_message(executable_trajectory, user_instruction):
     except json.JSONDecodeError:
         raise ValueError("GPT failed to return a valid JSON response.")
 
+# IN PROGRESS
+#def extract_relevant_message(executable_trajectory, user_instruction):
+#     """
+#     Use GPT to identify the single, most relevant message from executable_trajectory based on user_instruction.
+#     Ensure that your output is a strict JSON object containing only one key "message" with the exact message text.
+#     """
+#     prompt = f"""
+# You are a strict JSON formatter. Analyze the following tool usage trajectory:
+# {executable_trajectory}
+
+# Based on the user instruction: "{user_instruction}", identify the single most relevant message (from one sender) that the user should respond to. Only consider the most recent message if there are multiple.
+
+# Return your answer as a JSON object with exactly one key "message". The value must be exactly the message text, with no extra commentary or formatting. For example, if the message is "Hello John, how are you?", your response should be:
+# {{"message": "Hello John, how are you?"}}
+
+# Ensure your entire output is valid JSON and nothing else.
+#     """
+#     response = openai.ChatCompletion.create(
+#         model="gpt-4o-mini",
+#         messages=[{"role": "user", "content": prompt}],
+#         max_tokens=4096,
+#         temperature=0
+#     )
+#     result = response.choices[0]["message"]["content"].strip()
+#     try:
+#         return json.loads(result)
+#     except json.JSONDecodeError as e:
+#         # Log the raw result for debugging purposes.
+#         with open("extract_relevant_message_debug.log", "a") as log_file:
+#             log_file.write("Failed JSON response:\n")
+#             log_file.write(result + "\n\n")
+#         raise ValueError("GPT failed to return a valid JSON response.") from e
+
+
+def static_replace_message_content(executable_trajectory, original_message, modified_message):
+    """
+    Extracts the first JSON block (the one that contains the "messages" key) from the 
+    executable_trajectory string, replaces a single occurrence of original_message with 
+    modified_message, and then reinserts the updated JSON back into the trajectory.
+    """
+    # Look for a JSON block after the keyword "Observation:" that contains "messages"
+    pattern = r'Observation:\s*(\{(?:.|\n)*?"messages":\s*\[(?:.|\n)*?\}\n*\})'
+    match = re.search(pattern, executable_trajectory)
+    if not match:
+        raise ValueError("No JSON block with 'messages' found in the executable_trajectory.")
+    
+    json_block = match.group(1).strip()
+    try:
+        data = json.loads(json_block)
+    except Exception as e:
+        raise ValueError("Failed to parse JSON block from executable_trajectory.") from e
+
+    # Replace only the first occurrence where a key among ["message", "content", "body"] equals original_message.
+    found = False
+    for msg in data.get("messages", []):
+        for key in ["message", "content", "body"]:
+            if key in msg and msg[key] == original_message:
+                msg[key] = modified_message
+                found = True
+                break
+        if found:
+            break
+    if not found:
+        raise ValueError("Original message not found in the JSON block.")
+
+    # Re-serialize the updated JSON block
+    updated_json_block = json.dumps(data, indent=4)
+    # Replace the old JSON block in the original trajectory with the new one
+    updated_trajectory = executable_trajectory.replace(json_block, updated_json_block)
+    return updated_trajectory
+
+
+
 # Replace message content using GPT
 def replace_message_content(executable_trajectory, original_message, modified_message, retries=5, backoff_factor=2):
     """
@@ -223,11 +296,13 @@ while iteration_count < 100:
     modified_message = get_unique_modified_message(original_message, previous_messages)
     previous_messages.append(modified_message)
 
-    updated_trajectory = replace_message_content(executable_trajectory, original_message, modified_message)
+    # updated_trajectory = replace_message_content(executable_trajectory, original_message, modified_message)
+    updated_trajectory = static_replace_message_content(executable_trajectory, original_message, modified_message)
+
     # Verify that exactly one message was changed.
-    if not verify_single_change(original_trajectory, updated_trajectory, "message", original_message, modified_message):
-         print("Verification failed: More than one message was changed or unexpected changes occurred.")
-         continue  # Skip this iteration if the verification fails.
+    # if not verify_single_change(original_trajectory, updated_trajectory, "message", original_message, modified_message):
+    #      print("Verification failed: More than one message was changed or unexpected changes occurred.")
+    #      continue  # Skip this iteration if the verification fails.
 
     data["trajectory"]["executable_trajectory"] = updated_trajectory
 

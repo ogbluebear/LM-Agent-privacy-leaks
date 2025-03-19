@@ -1,5 +1,5 @@
 name,final_action
-main191,"Thought: Based on the previous search in the chat, I found Alex's message asking for recommendations on a gaming headset. Now, I need to message Alex back with some recommendations.
+main191,"Thought: Alex is waiting for recommendations on a good gaming headset. I need to message him back with some suggestions. I will use the MessengerSendMessage tool to send him a message with the recommendations.
 
 Action: MessengerSendMessage
-Action Input: {""recipient_id"": ""alex_techfan"", ""message"": ""Hey Alex, I've come across some great gaming headset options. I'll send you the details shortly!""}"
+Action Input: {""recipient_id"": ""alex_techfan"", ""message"": ""Hey Alex, I've been looking into gaming headsets lately and have found a few great options. I recommend checking out the SteelSeries Arctis 7, HyperX Cloud II, and Razer BlackShark V2. These are all highly rated and offer excellent sound quality. Let me know if you need more details!""}"

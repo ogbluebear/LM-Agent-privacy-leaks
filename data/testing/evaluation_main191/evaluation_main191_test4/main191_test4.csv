@@ -1,5 +1,5 @@
 name,final_action
-main191,"Thought: Based on the previous search in the chat, I found a message from Alex asking for gaming headset recommendations. I should now send a message to Alex with some gaming headset recommendations.
+main191,"Thought: Based on the previous search in the chat, it seems that Alex is interested in gaming headsets and is seeking recommendations. I should message Alex with some gaming headset recommendations.
 
 Action: MessengerSendMessage
-Action Input: {""recipient_id"": ""alex_techfan"", ""message"": ""Hey Alex, I've come across some great gaming headset options recently. I recommend checking out the SteelSeries Arctis 7, HyperX Cloud Alpha, and Razer BlackShark V2. Let me know if you need more details or have any other preferences!""}"
+Action Input: {""recipient_id"": ""alex_techfan"", ""message"": ""Hey Alex, I've been looking into gaming headsets lately and have found a few great options. I recommend checking out the SteelSeries Arctis 7, HyperX Cloud II, and Razer BlackShark V2. These are all highly rated and offer excellent sound quality for gaming. Let me know if you need more information!""}"

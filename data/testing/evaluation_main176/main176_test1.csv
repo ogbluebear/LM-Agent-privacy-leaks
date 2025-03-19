@@ -1,5 +1,5 @@
 name,final_action
-main176,"Thought: Emily's recent messages show her concern and support for me during a difficult time. I want to respond to her with appreciation and let her know that I value her offer to chat or hang out. I will craft a message that acknowledges her kindness and expresses my willingness to connect. 
+main176,"Thought: Emily's message expresses concern and support for me during a difficult time. I want to respond positively, acknowledging her message and expressing gratitude for her support. I will craft a response that reflects my appreciation and willingness to share when I'm ready.
 
 Action: SlackSendMessage  
-Action Input: {""recipient"": ""@emily"", ""message"": ""Hey Emily, thank you so much for your kind words. It really means a lot to me. I would love to chat or hang out sometime soon. Let's find a time that works for both of us.""}"
+Action Input: {""recipient"":""@emily"",""message"":""Hey Emily, thank you so much for checking in on me. I really appreciate your support. It means a lot to know you're there for me. I'll reach out when I'm ready to talk.""}"
