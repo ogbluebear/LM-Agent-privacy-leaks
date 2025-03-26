@@ -104,7 +104,7 @@ def extract_relevant_message(executable_trajectory, user_instruction):
 def extract_first_json_object(text):
     """
     Extract the first complete JSON object from a text string.
-    Returns the JSON substring and the end index of the JSON object.
+    Returns the JSON substring and the index right after the JSON object.
     """
     start = text.find('{')
     if start == -1:
@@ -119,82 +119,59 @@ def extract_first_json_object(text):
                 return text[start:i+1], i+1
     return None, None
 
+def find_message_key(executable_trajectory):
+    """
+    Identify the key in the executable_trajectory that contains the message.
+    Checks common keys like 'body', 'content', and 'message'.
+    """
+    potential_keys = ["body", "content", "message"]
+    for key in potential_keys:
+        match = re.search(fr'"{key}":\s*"(.*?)"', executable_trajectory, re.DOTALL)
+        if match:
+            return key
+    raise ValueError("No suitable message key found in the executable_trajectory.")
 
 def static_replace_message_content(executable_trajectory, original_message, modified_message):
     """
-    Extracts the first complete JSON object from the executable_trajectory (typically from an Observation block),
-    replaces exactly one occurrence of original_message with modified_message in its "messages" list,
-    and then reinserts the updated JSON back into the original trajectory string.
-    """
-    # Extract the first JSON object from the trajectory using the helper.
-    json_str, end_index = extract_first_json_object(executable_trajectory)
-    if not json_str:
-        raise ValueError("No JSON object found in executable_trajectory.")
+    Replace the first occurrence of the original message with the modified message in the
+    executable_trajectory by performing a regex substitution on the detected key.
     
-    try:
-        traj_data = json.loads(json_str)
-    except json.JSONDecodeError as e:
-        raise ValueError("Failed to parse JSON object from trajectory.") from e
-
-    # Verify the JSON object has a "messages" key.
-    if "messages" not in traj_data:
-        raise ValueError("No JSON object with a 'messages' key found in the executable_trajectory.")
-
-    found = False
-    for msg in traj_data["messages"]:
-        for key in ["message", "content", "body"]:
-            if key in msg and msg[key] == original_message:
-                msg[key] = modified_message
-                found = True
-                break
-        if found:
-            break
-
-    if not found:
-        raise ValueError("Original message not found in the messages JSON.")
-
-    updated_json_str = json.dumps(traj_data, indent=4)
-    # Replace the first occurrence of the extracted JSON substring with the updated JSON string.
-    updated_executable_trajectory = executable_trajectory.replace(json_str, updated_json_str, 1)
+    This version handles optional escaped quotes around the message.
+    """
+    # Normalize the original message by stripping extra quotes.
+    original_message = original_message.strip('"')
+    
+    # Dynamically detect which key to update.
+    key = find_message_key(executable_trajectory)
+    print(f"DEBUG: Detected key for replacement: {key}")
+    
+    # Build a regex pattern with groups to capture the prefix and suffix.
+    # The pattern matches the following structure:
+    #   "<key>": "<optional escaped quote><original_message><optional escaped quote>"
+    pattern = rf'("{key}":\s*")\\?"{re.escape(original_message)}\\?"(")'
+    print(f"DEBUG: Using regex pattern: {pattern}")
+    
+    # Build the replacement string using backreferences.
+    # This will reconstruct the matched string with the modified message in place of the original.
+    replacement = r'\1\\"' + modified_message + r'\\"\2'
+    print(f"DEBUG: Replacement string: {replacement}")
+    
+    # Perform the substitution and count the number of replacements.
+    updated_executable_trajectory, count = re.subn(
+        pattern,
+        replacement,
+        executable_trajectory,
+        count=1,
+        flags=re.DOTALL
+    )
+    
+    print(f"DEBUG: Number of substitutions made: {count}")
+    
+    if count == 0:
+        print("DEBUG: Replacement did not occur. Original message may not be found.")
+        print("DEBUG: Original message:", original_message)
+        raise ValueError("Original message not found for substitution.")
     return updated_executable_trajectory
-
-
-# Replace message content using GPT
-def replace_message_content(executable_trajectory, original_message, modified_message, retries=5, backoff_factor=2):
-    """
-    Replace the original message with the modified message in the executable_trajectory using GPT.
-    Includes retry logic to handle temporary API errors.
-    """
-    attempt = 0
-    while attempt < retries:
-        try:
-            prompt = f"""
-            The following is a trajectory of actions and observations in a tool usage process:
-
-            {executable_trajectory}
-
-            Replace a single occurrence of the message: "{original_message}" with the modified message: "{modified_message}".
-            Return only the updated trajectory as a string.
-            """
-            response = openai.ChatCompletion.create(
-                model="gpt-4o-mini",
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=4096,
-                temperature=0
-            )
-            return response.choices[0]["message"]["content"].strip()
-        except openai.error.APIError as e:
-            print(f"API error occurred: {e}. Retrying...")
-        except json.JSONDecodeError as e:
-            print(f"JSON decoding error: {e}. Retrying...")
-        except Exception as e:
-            print(f"Unexpected error: {e}. Retrying...")
-        
-        # Increment attempt and wait before retrying
-        attempt += 1
-        time.sleep(backoff_factor ** attempt + random.uniform(0, 1))
-
-    raise Exception("Failed to complete API request after multiple retries.")
 
 # Run evaluation commands
 def run_evaluation_commands():

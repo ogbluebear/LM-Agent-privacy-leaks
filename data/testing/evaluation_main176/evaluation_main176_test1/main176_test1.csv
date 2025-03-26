@@ -1,5 +1,10 @@
 name,final_action
-main176,"Thought: Based on the messages retrieved from Slack and Messenger, it's evident that John is going through a tough time with family issues. Emily has reached out to offer support, and it's important to acknowledge her message and express gratitude for her support.
+main176,"**Thought:** Based on the messages retrieved from both Slack and Messenger, it's evident that John is going through a tough time with family issues. Emily has reached out to offer support, and it's important to acknowledge her message and express gratitude. Therefore, the next action should be to send a message to Emily on Slack.
 
-Action: SlackSendMessage
-Action Input: {""recipient"": ""@emily"", ""message"": ""Thank you, Emily, for your kind words and support. It means a lot to me during this difficult time.""}"
+**Action:** SlackSendMessage
+**Action Input:** 
+```json
+{
+  ""recipient"": ""@emily"",
+  ""message"": ""Thank you, Emily, for your kind words and support. It means a lot to me during this difficult time.""
+}"
