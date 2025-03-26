@@ -131,35 +131,58 @@ def find_message_key(executable_trajectory):
             return key
     raise ValueError("No suitable message key found in the executable_trajectory.")
 
+def find_message_key(executable_trajectory):
+    """
+    Identify the key in the executable_trajectory that contains the message.
+    Checks common keys like 'body', 'content', and 'message'.
+    """
+    potential_keys = ["body", "content", "message"]
+    for key in potential_keys:
+        match = re.search(fr'"{key}":\s*"(.*?)"', executable_trajectory, re.DOTALL)
+        if match:
+            return key
+    raise ValueError("No suitable message key found in the executable_trajectory.")
+
 def static_replace_message_content(executable_trajectory, original_message, modified_message):
     """
     Replace the first occurrence of the original message with the modified message in the
-    executable_trajectory by performing a regex substitution on the detected key.
-    
-    This version handles optional escaped quotes around the message.
+    executable_trajectory. This version handles cases where the value may be wrapped
+    with extra escaped quotes (e.g. "\"...\"") or not.
     """
-    # Normalize the original message by stripping extra quotes.
+    # Normalize the original message.
     original_message = original_message.strip('"')
     
     # Dynamically detect which key to update.
     key = find_message_key(executable_trajectory)
     print(f"DEBUG: Detected key for replacement: {key}")
     
-    # Build a regex pattern with groups to capture the prefix and suffix.
-    # The pattern matches the following structure:
-    #   "<key>": "<optional escaped quote><original_message><optional escaped quote>"
-    pattern = rf'("{key}":\s*")\\?"{re.escape(original_message)}\\?"(")'
+    # Build a regex pattern that captures three groups:
+    #  Group 1: The key with its opening quote (e.g., "content": ")
+    #  Group 2: The actual message content, which might be optionally wrapped with escaped quotes.
+    #  Group 3: The closing quote.
+    pattern = rf'("{key}":\s*")((?:\\")?{re.escape(original_message)}(?:\\")?)(")'
     print(f"DEBUG: Using regex pattern: {pattern}")
     
-    # Build the replacement string using backreferences.
-    # This will reconstruct the matched string with the modified message in place of the original.
-    replacement = r'\1\\"' + modified_message + r'\\"\2'
-    print(f"DEBUG: Replacement string: {replacement}")
+    # Define a replacement function that checks for extra escaped quotes.
+    def replacement_func(match):
+        prefix = match.group(1)
+        content = match.group(2)
+        suffix = match.group(3)
+        # If the original content was wrapped with extra escaped quotes, preserve that format.
+        if content.startswith('\\"') and content.endswith('\\"'):
+            new_content = r'\\"' + modified_message + r'\\"'
+        else:
+            new_content = modified_message
+        print(f"DEBUG: Replacement function:")
+        print(f"       prefix: {prefix}")
+        print(f"       original content: {content}")
+        print(f"       new content: {new_content}")
+        print(f"       suffix: {suffix}")
+        return prefix + new_content + suffix
     
-    # Perform the substitution and count the number of replacements.
     updated_executable_trajectory, count = re.subn(
         pattern,
-        replacement,
+        replacement_func,
         executable_trajectory,
         count=1,
         flags=re.DOTALL
@@ -172,6 +195,7 @@ def static_replace_message_content(executable_trajectory, original_message, modi
         print("DEBUG: Original message:", original_message)
         raise ValueError("Original message not found for substitution.")
     return updated_executable_trajectory
+
 
 # Run evaluation commands
 def run_evaluation_commands():
