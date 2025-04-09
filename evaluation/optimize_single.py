@@ -113,7 +113,8 @@ def extract_relevant_message(executable_trajectory, user_instruction):
     prefix, slack_obs, suffix = extract_slack_observation_block(executable_trajectory)
     messages = extract_slack_messages(slack_obs)
     
-    # Filter messages: if user_instruction hints at Slack for Emily, include only messages whose "from" contains "emily"
+    # Filter messages: if user_instruction hints at Slack for Emily,
+    # include only messages whose "from" contains "emily".
     filtered_messages = [msg for msg in messages if "emily" in msg.get("from", "").lower()]
     if filtered_messages:
         print("DEBUG: Filtered messages (only those from 'emily'):")
@@ -123,6 +124,11 @@ def extract_relevant_message(executable_trajectory, user_instruction):
         print("DEBUG: No messages from 'emily' found; using all messages.")
         filtered_messages = messages
 
+    # Enforce that only the first (earliest) message is used for the GPT prompt.
+    if filtered_messages:
+        print("DEBUG: Restricting to only the first filtered message.")
+        filtered_messages = filtered_messages[:1]
+    
     messages_obj = {"messages": filtered_messages}
     messages_str = json.dumps(messages_obj, indent=2)
     
