@@ -46,155 +46,170 @@ def remove_square_brackets_from_file(file_path):
     with open(file_path, 'w') as file:
         file.write(content)
 
-def verify_single_change(original_traj_str, updated_traj_str, key, original_msg, modified_msg):
+def extract_slack_observation_block(executable_trajectory):
     """
-    Verify that exactly one message was changed in the updated trajectory.
-    Both trajectories are expected to be JSON strings representing an object with a "messages" key.
-    Returns True if exactly one message changed from original_msg to modified_msg; otherwise False.
+    Splits the executable_trajectory at the first "Observation:" marker and extracts the Slack observation block.
+    We assume that the observation block ends when the next "\nAction:" appears.
+    Returns a tuple: (prefix, slack_obs_text, suffix)
+      - prefix: Everything up to and including "Observation:"
+      - slack_obs_text: The extracted text of the Slack observation block
+      - suffix: The remaining text after that block.
     """
-    try:
-        orig_data = json.loads(original_traj_str)
-        upd_data = json.loads(updated_traj_str)
-    except Exception as e:
-        print("Error parsing trajectory JSON:", e)
-        return False
+    print("DEBUG: Splitting executable_trajectory by 'Observation:'")
+    parts = executable_trajectory.split("Observation:", 1)
+    if len(parts) < 2:
+        raise ValueError("No 'Observation:' marker found in executable_trajectory.")
+    prefix = parts[0] + "Observation:"
+    remainder = parts[1]
+    if "\nAction:" in remainder:
+        slack_obs = remainder.split("\nAction:", 1)[0]
+        suffix = "\nAction:" + remainder.split("\nAction:", 1)[1]
+    else:
+        slack_obs = remainder
+        suffix = ""
+    print("DEBUG: Slack observation block extracted:")
+    print(slack_obs)
+    return prefix, slack_obs, suffix
 
-    orig_msgs = orig_data.get("messages", [])
-    upd_msgs = upd_data.get("messages", [])
+def extract_slack_messages(observable_text):
+    """
+    Extracts all Slack message entries from the observable_text using regex.
+    Assumes each message is formatted as:
+      {
+         "content": " ... ",
+         "timestamp": " ... ",
+         "in": " ... ",
+         "from": " ... ",
+         "file_id": "..."
+      }
+    Returns a list of dictionaries for each message.
+    """
+    pattern = r'\{\s*"content":\s*"(?P<content>.*?)",\s*"timestamp":\s*"(?P<timestamp>.*?)",\s*"in":\s*"(?P<in_field>.*?)",\s*"from":\s*"(?P<from_field>.*?)",\s*"file_id":\s*"(?P<file_id>[^"]*)"'
+    print("DEBUG: Using pattern to extract Slack messages:")
+    print(pattern)
+    matches = re.findall(pattern, observable_text, re.DOTALL)
+    messages = []
+    for match in matches:
+        msg = {
+            "content": match[0].strip(),
+            "timestamp": match[1].strip(),
+            "in": match[2].strip(),
+            "from": match[3].strip(),
+            "file_id": match[4].strip()
+        }
+        messages.append(msg)
+    print("DEBUG: Extracted Slack messages:")
+    for i, msg in enumerate(messages):
+        print(f"Message {i}: {msg}")
+    return messages
 
-    change_count = 0
-    # Compare messages in order. (This assumes order stays the same.)
-    for orig_item, upd_item in zip(orig_msgs, upd_msgs):
-        if orig_item.get(key, "") != upd_item.get(key, ""):
-            if upd_item.get(key, "") != modified_msg:
-                print("Unexpected modification in a message:", upd_item.get(key, ""))
-                return False
-            change_count += 1
-    return change_count == 1
-        
-
-# Define function to extract relevant message using GPT
 def extract_relevant_message(executable_trajectory, user_instruction):
     """
-    Use GPT to identify the most relevant message from executable_trajectory based on user_instruction.
+    Use GPT to identify the most relevant Slack message.
+    This function extracts the Slack observation block using regex,
+    then extracts Slack messages using regex, builds a JSON object from them,
+    and sends that to GPT.
     """
+    prefix, slack_obs, suffix = extract_slack_observation_block(executable_trajectory)
+    messages = extract_slack_messages(slack_obs)
+    
+    # Filter messages: if user_instruction hints at Slack for Emily,
+    # include only messages whose "from" contains "emily".
+    filtered_messages = [msg for msg in messages if "emily" in msg.get("from", "").lower()]
+    if filtered_messages:
+        print("DEBUG: Filtered messages (only those from 'emily'):")
+        for i, msg in enumerate(filtered_messages):
+            print(f"Filtered Message {i}: {msg}")
+    else:
+        print("DEBUG: No messages from 'emily' found; using all messages.")
+        filtered_messages = messages
+
+    # Enforce that only the first (earliest) message is used for the GPT prompt.
+    if filtered_messages:
+        print("DEBUG: Restricting to only the first filtered message.")
+        filtered_messages = filtered_messages[:1]
+    
+    messages_obj = {"messages": filtered_messages}
+    messages_str = json.dumps(messages_obj, indent=2)
+    
     prompt = f"""
-    The following is a trajectory of actions and observations in a tool usage process:
-
-    {executable_trajectory}
-
+    The following is a JSON object containing a list of Slack messages:
+    {messages_str}
+    
     Based on the user instruction: "{user_instruction}", identify the most relevant message that the user should respond to.
-    MAKE SURE THE MESSAGE YOU'RE IDENTIFYING IS ONLY ONE SINGULAR MESSAGE, FROM ONE SINGULAR PERSON. For example, if the user_instruction is: 'Respond to Sarah's email about the \"Quantum Cohesion 2023\" retreat. You can check out my Gmail and NotionManager for information.', then look in the executable_trajectory for the most recent (closeset to top) SINGLE message that seems to be from sarah regarding whatever topic (if there is a topic mentioned in the user_instruction).
-
+    MAKE SURE THE MESSAGE YOU'RE IDENTIFYING IS ONLY ONE SINGULAR MESSAGE, FROM ONE SINGULAR PERSON.
+    
     Return only the single, exact message content as a JSON string in this format: {{"message": "message content"}}
     If no relevant message exists, return: {{"message": null}}
     """
+    print("DEBUG: GPT prompt for extract_relevant_message:")
+    print(prompt)
     response = openai.ChatCompletion.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=4096,
-        temperature=0
+         model="gpt-4o-mini",
+         messages=[{"role": "user", "content": prompt}],
+         max_tokens=4096,
+         temperature=0
     )
     result = response.choices[0]["message"]["content"].strip()
+    print("DEBUG: GPT response:")
+    print(result)
     try:
-        return json.loads(result)
+         return json.loads(result)
     except json.JSONDecodeError:
-        raise ValueError("GPT failed to return a valid JSON response.")
+         raise ValueError("GPT failed to return a valid JSON response.")
 
-def extract_first_json_object(text):
+def find_message_key(executable_trajectory):
     """
-    Extract the first complete JSON object from a text string.
-    Returns the JSON substring and the end index of the JSON object.
+    Identify the key in the executable_trajectory that contains the message.
+    Checks common keys like 'body', 'content', and 'message'.
     """
-    start = text.find('{')
-    if start == -1:
-        return None, None
-    brace_count = 0
-    for i in range(start, len(text)):
-        if text[i] == '{':
-            brace_count += 1
-        elif text[i] == '}':
-            brace_count -= 1
-            if brace_count == 0:
-                return text[start:i+1], i+1
-    return None, None
-
+    potential_keys = ["body", "content", "message"]
+    for key in potential_keys:
+        match = re.search(fr'"{key}":\s*"(.*?)"', executable_trajectory, re.DOTALL)
+        if match:
+            return key
+    raise ValueError("No suitable message key found in the executable_trajectory.")
 
 def static_replace_message_content(executable_trajectory, original_message, modified_message):
     """
-    Extracts the first complete JSON object from the executable_trajectory (typically from an Observation block),
-    replaces exactly one occurrence of original_message with modified_message in its "messages" list,
-    and then reinserts the updated JSON back into the original trajectory string.
+    Using regex, replace the first occurrence of original_message (in the "content" field)
+    within the Slack observation block (extracted via regex) with modified_message.
+    This version accepts that the original message may be wrapped with 0–2 extra double quotes.
+    Reassemble and return the updated executable_trajectory.
     """
-    # Extract the first JSON object from the trajectory using the helper.
-    json_str, end_index = extract_first_json_object(executable_trajectory)
-    if not json_str:
-        raise ValueError("No JSON object found in executable_trajectory.")
+    prefix, slack_obs, suffix = extract_slack_observation_block(executable_trajectory)
+    print("DEBUG: Original Slack observation block before replacement:")
+    print(slack_obs)
     
-    try:
-        traj_data = json.loads(json_str)
-    except json.JSONDecodeError as e:
-        raise ValueError("Failed to parse JSON object from trajectory.") from e
+    key = "content"
+    orig_msg_trim = original_message.strip()
+    # Build a regex pattern that matches:
+    #   Group 1: the literal '"content": "' 
+    #   Group 2: an optional 0 to 2 double quotes ([\"]{0,2})
+    #   Group 3: the original message text (escaped)
+    #   Group 4: an optional 0 to 2 double quotes ([\"]{0,2})
+    #   Group 5: the closing quote
+    pattern = rf'("{key}":\s*")(["]{{0,2}}){re.escape(orig_msg_trim)}(["]{{0,2}})(")'
+    print("DEBUG: Regex pattern for replacement:")
+    print(pattern)
+    
+    def repl(match):
+        new_text = match.group(1) + modified_message + match.group(4)
+        print("DEBUG: Replacement function called:")
+        print(f"  Original match: {match.group(0)}")
+        print(f"  New text: {new_text}")
+        return new_text
 
-    # Verify the JSON object has a "messages" key.
-    if "messages" not in traj_data:
-        raise ValueError("No JSON object with a 'messages' key found in the executable_trajectory.")
-
-    found = False
-    for msg in traj_data["messages"]:
-        for key in ["message", "content", "body"]:
-            if key in msg and msg[key] == original_message:
-                msg[key] = modified_message
-                found = True
-                break
-        if found:
-            break
-
-    if not found:
-        raise ValueError("Original message not found in the messages JSON.")
-
-    updated_json_str = json.dumps(traj_data, indent=4)
-    # Replace the first occurrence of the extracted JSON substring with the updated JSON string.
-    updated_executable_trajectory = executable_trajectory.replace(json_str, updated_json_str, 1)
-    return updated_executable_trajectory
-
-
-# Replace message content using GPT
-def replace_message_content(executable_trajectory, original_message, modified_message, retries=5, backoff_factor=2):
-    """
-    Replace the original message with the modified message in the executable_trajectory using GPT.
-    Includes retry logic to handle temporary API errors.
-    """
-    attempt = 0
-    while attempt < retries:
-        try:
-            prompt = f"""
-            The following is a trajectory of actions and observations in a tool usage process:
-
-            {executable_trajectory}
-
-            Replace a single occurrence of the message: "{original_message}" with the modified message: "{modified_message}".
-            Return only the updated trajectory as a string.
-            """
-            response = openai.ChatCompletion.create(
-                model="gpt-4o-mini",
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=4096,
-                temperature=0
-            )
-            return response.choices[0]["message"]["content"].strip()
-        except openai.error.APIError as e:
-            print(f"API error occurred: {e}. Retrying...")
-        except json.JSONDecodeError as e:
-            print(f"JSON decoding error: {e}. Retrying...")
-        except Exception as e:
-            print(f"Unexpected error: {e}. Retrying...")
-        
-        # Increment attempt and wait before retrying
-        attempt += 1
-        time.sleep(backoff_factor ** attempt + random.uniform(0, 1))
-
-    raise Exception("Failed to complete API request after multiple retries.")
+    new_slack_obs, count = re.subn(pattern, repl, slack_obs, count=1, flags=re.DOTALL)
+    print(f"DEBUG: Number of substitutions made: {count}")
+    if count == 0:
+        print("DEBUG: Replacement did not occur. Original message:")
+        print(original_message)
+        raise ValueError("Original message not found in the Slack observation block.")
+    new_executable_trajectory = prefix + "\n" + new_slack_obs + "\n" + suffix
+    print("DEBUG: New executable_trajectory:")
+    print(new_executable_trajectory)
+    return new_executable_trajectory
 
 # Run evaluation commands
 def run_evaluation_commands():
@@ -283,10 +298,6 @@ while iteration_count < 100:
 
     # updated_trajectory = replace_message_content(executable_trajectory, original_message, modified_message)
     updated_trajectory = static_replace_message_content(executable_trajectory, original_message, modified_message)
-    # Verify that exactly one message was changed.
-    # if not verify_single_change(original_trajectory, updated_trajectory, "message", original_message, modified_message):
-    #      print("Verification failed: More than one message was changed or unexpected changes occurred.")
-    #      continue  # Skip this iteration if the verification fails.
 
     data["trajectory"]["executable_trajectory"] = updated_trajectory
 
